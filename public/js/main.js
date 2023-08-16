@@ -1,8 +1,7 @@
-const date = new Date();
-const formattedDate = date.toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-const [datePart, timePart] = formattedDate.split(', ');
-console.log(`datePart = ${datePart}`);
-console.log(`timePart = ${timePart}`);
+const getCurrentDateAndTimeParts = require('./common');
+const { datePart, timePart } = getCurrentDateAndTimeParts();
+console.log(`${datePart}`);
+console.log(`${timePart}`);
 
 const numberInput = document.getElementById('number'),
     textInput = document.getElementById('msg'),
@@ -15,9 +14,11 @@ button.addEventListener('click', send, false);
 
 // Functions
 function send() {
-    console.log('Inside send function');
+    // console.log(`${currentDate}`);
+    // console.log(`${currentTime}`);
+
     console.log('numberInput');
-    console.log(numberInput.innerText);
+    console.log(numberInput.value);
     console.log('textInput');
     console.log(textInput);
     console.log('button');
@@ -31,13 +32,6 @@ function send() {
     console.log(`textInput = ${textInput}`);
     const text = textInput.value;
     console.log(`text = ${text}`);
-
-
-    const date = new Date();
-    const formattedDate = date.toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-    const [datePart, timePart] = formattedDate.split(', ');
-    console.log(`datePart = ${datePart}`);
-    console.log(`timePart = ${timePart}`);
 
 
     fetch('/', {
@@ -59,5 +53,3 @@ function send() {
             console.log('%cerr = ' + err, styleBad, err);
         })
 }
-
-
