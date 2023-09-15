@@ -1,5 +1,4 @@
-console.log(`1st line of ${__filename}`);
-// ./public/js/common.js
+console.log(`1st line of \x1b[45m${__filename}\x1b[0m`);
 
 function getCurrentDateAndTimeParts() {
     const formattedDate = new Date().toLocaleString('en-CA', {
@@ -20,4 +19,4 @@ function getCurrentDateAndTimeParts() {
 module.exports = getCurrentDateAndTimeParts;
 
 
-console.log(`Last line of ${__filename}`);
+console.log(`Last line of \x1b[45m${__filename}\x1b[0m`);

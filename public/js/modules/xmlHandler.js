@@ -1,11 +1,13 @@
+console.log(`1st line of \x1b[44m${__filename}\x1b[0m`);
 const axios = require('axios');
 const parseString = require('xml2js').parseString;
 
 const xmlUrl = 'https://bwt.cbp.gov/api/bwtrss/getAllPortsRss/Canada';
 
-async function main() {
+async function borderData() {
     const xmlData = await fetchXMLData();
-    console.log(parseXMLAndExtractInfo(xmlData));
+    console.log('parseXMLAndExtractInfo(xmlData)'); // Log to terminal
+    return parseXMLAndExtractInfo(xmlData);
 }
 
 async function fetchXMLData() {
@@ -20,10 +22,9 @@ async function fetchXMLData() {
 }
 
 let outgoingMsgText = '';
+let outgoingMsgObj = {};
 
 function parseXMLAndExtractInfo(xmlData) {
-
-    // let msg = '';
 
     if (!xmlData) {
         console.log('No XML data available.');
@@ -72,22 +73,33 @@ function parseXMLAndExtractInfo(xmlData) {
                         extractAndFormat(extractedText);
                         // **************************************
 
-                        console.log(`\x1b[42m${title}: ${extractAndFormat(extractedText)}\x1b[0m`);
-                        outgoingMsgText += `${title}: ${extractAndFormat(extractedText)}\n`;
+                        console.log(`\x1b[42m${title}: ${extractAndFormat(extractedText)}\x1b[0m`); // Log to terminal
+                        outgoingMsgText += `\n${title}: ${extractAndFormat(extractedText)}`;
+                        // outgoingMsgText += `${title}: ${extractAndFormat(extractedText)}\n`;
+                        outgoingMsgObj = {
+                            title: title,
+                            extractedText: extractAndFormat(extractedText),
+                        }
+                        // console.log(`\x1b[42m${outgoingMsgObj[title]}: \x1b[0m`);
+                        // console.log(`\x1b[42m${extractAndFormat(extractedText)}\x1b[0m`);
+                        // console.log(`\x1b[42m${outgoingMsgObj[title]}: ${outgoingMsgObj[extractedText]}\x1b[0m`);
+                        // outgoingMsgObj[title] = extractAndFormat(extractedText);
+
                     } else {
-                        console.log("Text not found.");
+                        console.log("Text not found."); // Log to terminal
                     }
 
                     // *********************************
                     // *********************************
                 } else {
-                    console.log('If statement was FALSE.');
+                    console.log('If statement was FALSE.'); // Log to terminal
                 }
 
             }
         });
     });
 
+    // return outgoingMsgObj;
     return outgoingMsgText;
 }
 
@@ -130,4 +142,5 @@ function formatTime(hour, minute) {
 }
 
 
-module.exports = { main };
+module.exports = { borderData };
+console.log(`Last line of \x1b[44m${__filename}\x1b[0m`);

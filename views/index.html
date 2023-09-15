@@ -8,19 +8,21 @@
         integrity="sha512-5fsy+3xG8N/1PV5MIJz9ZsWpkltijBI48gBzQ/Z2eVATePGHOkMIn+xTDHIfTZFVb9GMpflF2wOWItqxAP2oLQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+    <script src="js/common.js"></script>
+
     <title>Node SMS Texting</title>
 </head>
 
 <body>
     <div class="container">
         <h2>Send SMS Message</h2>
-        <input type="tel" name="number" id="number" value="123-456-8790"> <!-- placeholder="Enter Phone Number">-->
-        <input type="text" name="msg" id="msg" placeholder="Enter Text Message">
+        <input type="tel" name="number" id="number" placeholder="Enter Phone Number" value="123-456-8790">
+        <!-- placeholder="Enter Phone Number">-->
+        <input type="text" name="msg" id="msg" placeholder="Enter Text Message" value="junk">
         <input type="button" id="button" value="Send Text" class="button button-primary">
-        <p class="response"></p>
+        <p class="response">getCurrentDateAndTimeParts</p>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
     <script src="js/main.js"></script>
 </body>
 

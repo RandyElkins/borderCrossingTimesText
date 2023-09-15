@@ -1,3 +1,4 @@
+console.log(`1st line of \x1b[41m${__filename}\x1b[0m`);
 // Pseudo Code
 // 1. Receive "start" text from user
 // 2. Site retrieves border wait times
@@ -11,15 +12,40 @@ dotenv.config();
 
 // Imports from other files
 const getCurrentDateAndTimeParts = require('./public/js/common');
+// const mainAsWell = require('./public/js/main');
 const smsHandler = require('./public/js/modules/smsHandler'); // A module for sending SMS
+console.log(`Still in \x1b[41m${__filename}\x1b[0m`);
 const xmlHandler = require('./public/js/modules/xmlHandler'); // A module for handling XML data
 
-xmlHandler.main();
+// const outgoingMsgText = xmlHandler.borderData();
+const { datePart, timePart } = getCurrentDateAndTimeParts();
+console.log(`\x1b[41m${datePart}\x1b[0m at \x1b[41m${timePart}\x1b[0m.`);
 
 // ********************************************************************************************************
 
 // Init app
 const app = express();
+console.log(`Still in \x1b[41m${__filename}\x1b[0m`);
+
+// From ChatGPT
+app.get('/api/data', async (req, res) => { // Use async to await the promise
+    try {
+        let borderData = await xmlHandler.borderData(); // Await the promise
+        // let borderData = await xmlHandler.borderData(); // Await the promise
+        const { datePart, timePart } = getCurrentDateAndTimeParts();
+        let messageHtml = `${datePart} at ${timePart}` + borderData.split('\n').join('<br>');
+        let messageConsole = `${datePart} at ${timePart}` + borderData;
+        const data = {
+            messageHtml,
+            messageConsole,
+        };
+        res.json(data);
+    } catch (error) {
+        // Handle any errors that occur during the asynchronous operation
+        console.error('Error in /api/data:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+});
 
 // Template engine setup
 app.set('view engine', 'html');
@@ -35,23 +61,26 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Index route
 app.get('/', (req, res) => {
     res.render('index');
+    console.log(`\x1b[41mInside app.get '/'. You should see this message when the page (re)loads\x1b[0m`);
 })
 
 // Catch form submit
 const styleGood = 'background-color: green; color: white; font-style: italic; border: 5px solid black; font-size: 2em;'
-console.log('%cInside app.post', styleGood);
+console.log(`\x1b[41mInside app.post\x1b[0m`);
+
 app.post('/', (req, res) => {
 
     res.send(req.body);
-    console.log(req.body);
+    console.log(`Just hit "SEND TEXT" button`); // Log to terminal
+    console.log(req.body); // Log to terminal
 
     const number = req.body.number;
-    const text = outgoingMsgText;
-    // const text = req.body.text;
+    // const text = outgoingMsgText;
+    const text = req.body.text;
 
-    console.log('%cHERE', styleGood);
-    console.log(number + '%cHERE' + text);
-    console.log('\x1b[48;5;40m\x1b[38;5;226mLast line of \'app.post\'\x1b[0m');
+    console.log('%cHERE', styleGood); // Log to terminal
+    console.log(number + '%cHERE' + text); // Log to terminal
+    console.log('\x1b[48;5;40m\x1b[38;5;226mRandy\x1b[0m'); // Log to terminal
 
     // ***********************************************************************************
     // ********** UNcomment the line below to receive texts again while testing **********
@@ -61,10 +90,10 @@ app.post('/', (req, res) => {
 
 // Define port
 const port = 3000;
-const { datePart, timePart } = getCurrentDateAndTimeParts();
 const server = app.listen(port, () => {
-    console.log(`Listening at port ${port} on \x1b[41m${datePart}\x1b[0m at \x1b[41m${timePart}\x1b[0m.`);
+    const { datePart, timePart } = getCurrentDateAndTimeParts();
+    console.log(`Listening at port ${port} on \x1b[41m${datePart}\x1b[0m at \x1b[41m${timePart}\x1b[0m.`); // Log to terminal
 });
 
 
-console.log(`Last line of ${__filename}`);
+console.log(`Last line of \x1b[41m${__filename}\x1b[0m`); // Log to terminal
