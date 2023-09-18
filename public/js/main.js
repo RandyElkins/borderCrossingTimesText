@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error('Error:', error);
         });
 
+    data = '';
     button.addEventListener('click', send, false);
 });
 
@@ -56,7 +57,7 @@ function send() {
     // console.log(`textInput = ${textInput}`);
     // console.log(`${textInput}`);
     // const text = textInput.value;
-    console.log(`text = ${textInput.value}`);
+    console.log(`textInput.value = ${textInput.value}`);
 
 
     fetch('/', {
@@ -68,7 +69,7 @@ function send() {
     })
         .then(function (res) {
             const styleGood = 'background-color: green; color: white; font-style: italic; border: 5px solid black; font-size: 2em;'
-            console.log('%cYay, success...of sorts:', styleGood);
+            // console.log('%cYay, success...of sorts:', styleGood);
 
             console.log('%cres = ', styleGood, res);
         })

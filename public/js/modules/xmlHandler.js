@@ -21,10 +21,10 @@ async function fetchXMLData() {
     }
 }
 
-let outgoingMsgText = '';
-let outgoingMsgObj = {};
-
 function parseXMLAndExtractInfo(xmlData) {
+
+    let outgoingMsgText = '';
+    let outgoingMsgObj = {};
 
     if (!xmlData) {
         console.log('No XML data available.');

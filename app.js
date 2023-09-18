@@ -88,6 +88,43 @@ app.post('/', (req, res) => {
     // sendSMS(number, text);
 })
 
+// Configure your web application to receive HTTP POST requests and respond with TwiML
+app.post('/webhook', async (req, res) => {
+    // Get the message from the request body
+    const message = req.body.Body;
+
+    let messageHtml = '';
+    let messageConsole = '';
+    // Ping your website and extract the status message
+    // const statusMessage = await pingWebsiteAndExtractMessage();
+    try {
+        let borderData = await xmlHandler.borderData(); // Await the promise
+        // let borderData = await xmlHandler.borderData(); // Await the promise
+        const { datePart, timePart } = getCurrentDateAndTimeParts();
+        messageHtml = `${datePart} at ${timePart}` + borderData.split('\n').join('<br>');
+        messageConsole = `\n${datePart} at ${timePart}` + borderData;
+        // const data = {
+        //     messageHtml,
+        //     messageConsole,
+        // };
+        // console.log(`messageHtml = ${messageHtml}`); // Log to terminal
+        // console.log(`messageConsole = ${messageConsole}`); // Log to terminal
+        // res.json(data);
+    } catch (error) {
+        // Handle any errors that occur during the asynchronous operation
+        console.error('Error in /api/data:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+
+    // Respond to Twilio with a TwiML message that contains the status message
+    res.send(`<?xml version="1.0" encoding="UTF-8"?>
+  <Response>
+    <Message>
+      Border Xing times from CAN to USA:${messageConsole}
+    </Message>
+  </Response>`);
+});
+
 // Define port
 const port = 3000;
 const server = app.listen(port, () => {

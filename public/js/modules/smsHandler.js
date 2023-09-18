@@ -8,8 +8,6 @@ function sendSMS(number, text) {
 
     return client.messages
         .create({ body: `${text}.`, from: process.env.TWILIO_NUMBER, to: process.env.RECIPIENT_NUMBER })
-        // .create({ body: `${text}.`, from: '+18449302025', to: process.env.RECIPIENT_NUMBER })
-        // .create({ body: `\nThe number sent over was ${number}, & the message sent was ${text}.`, from: '+18449302025', to: process.env.RECIPIENT_NUMBER })
         .then(message => console.log(message, 'Message sent.'))
         .catch(err => console.log(err, 'Message NOT sent.'));
 }
