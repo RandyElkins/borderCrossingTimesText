@@ -1,19 +1,29 @@
-console.log(`1st line of \x1b[44m${__filename}\x1b[0m`);
+// console.log(`1st line of \x1b[44m${__filename}\x1b[0m`);
 const axios = require('axios');
 const parseString = require('xml2js').parseString;
 
-const xmlUrl = 'https://bwt.cbp.gov/api/bwtrss/getAllPortsRss/Canada';
+// Various sites to gather border time info
+const canadaToUsTimesXmlUrl = 'https://bwt.cbp.gov/api/bwtrss/getAllPortsRss/Canada';
+const usToCanadaTimesXmlUrlBlaine = 'https://canadabordertimes.com/blaine/';
+const usToCanadaTimesXmlUrlLynden = 'https://canadabordertimes.com/lynden/';
+const usToCanadaTimesXmlUrlSumas = 'https://canadabordertimes.com/sumas/';
 
-async function borderData() {
-    const xmlData = await fetchXMLData();
-    console.log('parseXMLAndExtractInfo(xmlData)'); // Log to terminal
-    return parseXMLAndExtractInfo(xmlData);
+async function canadaToUsBorderData() {
+    const xmlData = await fetchCanadaToUsXMLData();
+    // console.log('parseCanadaToUsXMLAndExtractInfo(xmlData)'); // Log to terminal
+    return parseCanadaToUsXMLAndExtractInfo(xmlData);
 }
 
-async function fetchXMLData() {
+async function usToCanadaBorderData() {
+    const xmlData = await fetchUsToCanadaXMLData();
+    // console.log('parseCanadaToUsXMLAndExtractInfo(xmlData)'); // Log to terminal
+    return parseUsToCanadaXMLAndExtractInfo(xmlData);
+}
+
+async function fetchCanadaToUsXMLData() {
     try {
-        const response = await axios.get(xmlUrl);
-        const xmlData = response.data;
+        const canadaToUsTimes = await axios.get(canadaToUsTimesXmlUrl);
+        const xmlData = canadaToUsTimes.data;
         return xmlData;
     } catch (error) {
         console.error('Error fetching XML data:', error);
@@ -21,10 +31,30 @@ async function fetchXMLData() {
     }
 }
 
-function parseXMLAndExtractInfo(xmlData) {
+async function fetchUsToCanadaXMLData() {
+    try {
+        const usToCanadaTimesBlaine = await axios.get(usToCanadaTimesXmlUrlBlaine);
+        const usToCanadaTimesLynden = await axios.get(usToCanadaTimesXmlUrlLynden);
+        const usToCanadaTimesSumas = await axios.get(usToCanadaTimesXmlUrlSumas);
+        const xmlDataBlaineData = usToCanadaTimesBlaine.data;
+        const xmlDataLyndenData = usToCanadaTimesLynden.data;
+        const xmlDataSumasData = usToCanadaTimesSumas.data;
+        console.log(`\x1b[41mxmlDataBlaineData\x1b[0m =`); // RED background with BLACK font
+        console.log(xmlDataBlaineData);
+        console.log(`\x1b[41mxmlDataLyndenData\x1b[0m =`); // RED background with BLACK font
+        console.log(xmlDataLyndenData);
+        console.log(`\x1b[41mxmlDataSumasData\x1b[0m =`); // RED background with BLACK font
+        console.log(xmlDataSumasData);
+        return xmlDataBlaineData;
+    } catch (error) {
+        console.error('Error fetching XML data:', error);
+        throw error;
+    }
+}
+
+function parseCanadaToUsXMLAndExtractInfo(xmlData) {
 
     let outgoingMsgText = '';
-    let outgoingMsgObj = {};
 
     if (!xmlData) {
         console.log('No XML data available.');
@@ -46,15 +76,18 @@ function parseXMLAndExtractInfo(xmlData) {
             if (title === "Blaine - Pacific Highway" || title === "Blaine - Peace Arch" /*|| title === "Blaine - Point Roberts" */ || title === "Lynden" || title === "Sumas") {
 
                 if (title === "Blaine - Pacific Highway") {
-                    title = "Truck Xing";
+                    title = "Truck Xing-";
+                    // title = "Truck Xing";
                 } else if (title === "Blaine - Peace Arch") {
                     title = "Peace Arch";
                 } else if (title === "Blaine - Point Roberts") {
                     title = "Pt Roberts";
                 } else if (title === "Lynden") {
-                    title = "Meridian--";
+                    title = "Meridian----";
+                    // title = "Meridian--";
                 } else if (title === "Sumas") {
-                    title = "Sumas-----";
+                    title = "Sumas-------";
+                    // title = "Sumas-----";
                 } else {
                     title = "IDK";
                 }
@@ -76,14 +109,6 @@ function parseXMLAndExtractInfo(xmlData) {
                         console.log(`\x1b[42m${title}: ${extractAndFormat(extractedText)}\x1b[0m`); // Log to terminal
                         outgoingMsgText += `\n${title}: ${extractAndFormat(extractedText)}`;
                         // outgoingMsgText += `${title}: ${extractAndFormat(extractedText)}\n`;
-                        outgoingMsgObj = {
-                            title: title,
-                            extractedText: extractAndFormat(extractedText),
-                        }
-                        // console.log(`\x1b[42m${outgoingMsgObj[title]}: \x1b[0m`);
-                        // console.log(`\x1b[42m${extractAndFormat(extractedText)}\x1b[0m`);
-                        // console.log(`\x1b[42m${outgoingMsgObj[title]}: ${outgoingMsgObj[extractedText]}\x1b[0m`);
-                        // outgoingMsgObj[title] = extractAndFormat(extractedText);
 
                     } else {
                         console.log("Text not found."); // Log to terminal
@@ -99,17 +124,12 @@ function parseXMLAndExtractInfo(xmlData) {
         });
     });
 
-    // return outgoingMsgObj;
     return outgoingMsgText;
 }
 
 function extractAndFormat(inputString) {
     const regex = /(\d+) General Lanes: At (\d{1,2}):(\d{2}) ([ap]m) PDT (\d+) min delay (\d+) lane\(s\) open/;
-    // console.log(`regex = ${regex}`);
     const match = inputString.match(regex);
-    // console.log(`match = ${match}`);
-
-    // console.log(match);
 
     if (match && match[1] && match[2] && match[3] && match[4] && match[5] && match[6]) {
         const totalLanes = match[1]; // Example: "10" = 10 total lanes
@@ -142,5 +162,5 @@ function formatTime(hour, minute) {
 }
 
 
-module.exports = { borderData };
-console.log(`Last line of \x1b[44m${__filename}\x1b[0m`);
+module.exports = { canadaToUsBorderData, usToCanadaBorderData };
+// console.log(`Last line of \x1b[44m${__filename}\x1b[0m`);

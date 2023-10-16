@@ -1,4 +1,4 @@
-console.log(`1st line of \x1b[45m${__filename}\x1b[0m`);
+// console.log(`1st line of \x1b[45m${__filename}\x1b[0m`); // PURPLE background with BLACK font
 
 function getCurrentDateAndTimeParts() {
     const formattedDate = new Date().toLocaleString('en-CA', {
@@ -19,4 +19,4 @@ function getCurrentDateAndTimeParts() {
 module.exports = getCurrentDateAndTimeParts;
 
 
-console.log(`Last line of \x1b[45m${__filename}\x1b[0m`);
+// console.log(`Last line of \x1b[45m${__filename}\x1b[0m`);

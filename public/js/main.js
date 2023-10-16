@@ -6,29 +6,21 @@
 const numberInput = document.getElementById('number'),
     textInput = document.getElementById('msg'),
     button = document.getElementById('button'),
-    response = document.querySelector('.response');
+    canadaToUsTimes = document.querySelector('.canadaToUsTimes'),
+    usToCanadaTimes = document.querySelector('.usToCanadaTimes');
 
 // const xmlHandler = require('./modules/xmlHandler'); // THIS did NOT work because './public/js/modules/xmlHandler' is NOT BROWSER-BASED
 
 document.addEventListener("DOMContentLoaded", function () {
-    // console.log(`Done loading`);
-
-    // console.log(`numberInput = `);
-    // console.log(numberInput.value);
-    // console.log(`textInput = `);
-    // console.log(textInput);
-    // console.log(`button = `);
-    // console.log(button);
-    // console.log(`response = `);
-    // console.log(response);
-
     fetch('/api/data')
-        .then(response => response.json())
+        .then(canadaToUsTimes => canadaToUsTimes.json())
         .then(data => {
             const styleGood = 'background-color: green; color: white; font-style: normal; border: 1px solid black; font-size: 1em;'
             console.log(`%c${data.messageConsole}`, styleGood); // log to website (border times)
-            textInput.value = data.messageHtml;
-            response.innerHTML = data.messageHtml;
+            // textInput.value = data.messageHtml;
+            canadaToUsTimes.innerHTML = data.messageHtmlCanadaToUsTableTotal;
+            usToCanadaTimes.innerHTML = data.messageHtmlUsToCanadaTableTotal;
+            // canadaToUsTimes.innerHTML = data.messageHtml;
         })
         .catch(error => {
             console.error('Error:', error);
@@ -48,8 +40,8 @@ function send() {
     // console.log(textInput);
     // console.log('button');
     // console.log(button);
-    // console.log('response');
-    // console.log(response);
+    // console.log('canadaToUsTimes');
+    // console.log(canadaToUsTimes);
 
     // console.log(`numberInput.value = ${numberInput.value}`);
     const number = numberInput.value.replace(/\D/g, '');
@@ -81,10 +73,10 @@ function send() {
 
     // Fetch data from the server
     fetch('/api/data')
-        .then(response => response.json())
+        .then(canadaToUsTimes => canadaToUsTimes.json())
         .then(data => {
             console.log(data.messageConsole); // This will log "Hello from the server!" in the browser's console
-            response.innerHTML = data.messageHtml;
+            canadaToUsTimes.innerHTML = data.messageHtml;
         })
         .catch(error => {
             console.error('Error:', error);

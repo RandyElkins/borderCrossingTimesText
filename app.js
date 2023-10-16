@@ -1,4 +1,4 @@
-console.log(`1st line of \x1b[41m${__filename}\x1b[0m`);
+console.log(`1st line of \x1b[41m${__filename}\x1b[0m`); // RED background with BLACK font
 // Pseudo Code
 // 1. Receive "start" text from user
 // 2. Site retrieves border wait times
@@ -14,29 +14,67 @@ dotenv.config();
 const getCurrentDateAndTimeParts = require('./public/js/common');
 // const mainAsWell = require('./public/js/main');
 const smsHandler = require('./public/js/modules/smsHandler'); // A module for sending SMS
-console.log(`Still in \x1b[41m${__filename}\x1b[0m`);
+console.log(`Still in \x1b[41m${__filename}\x1b[0m`); // RED background with BLACK font
 const xmlHandler = require('./public/js/modules/xmlHandler'); // A module for handling XML data
 
-// const outgoingMsgText = xmlHandler.borderData();
 const { datePart, timePart } = getCurrentDateAndTimeParts();
-console.log(`\x1b[41m${datePart}\x1b[0m at \x1b[41m${timePart}\x1b[0m.`);
+console.log(`\x1b[41m${datePart}\x1b[0m at \x1b[41m${timePart}\x1b[0m.`); // RED background with BLACK font
 
 // ********************************************************************************************************
 
 // Init app
 const app = express();
-console.log(`Still in \x1b[41m${__filename}\x1b[0m`);
+console.log(`Still in \x1b[41m${__filename}\x1b[0m`); // RED background with BLACK font
 
 // From ChatGPT
 app.get('/api/data', async (req, res) => { // Use async to await the promise
     try {
-        let borderData = await xmlHandler.borderData(); // Await the promise
-        // let borderData = await xmlHandler.borderData(); // Await the promise
+        let canadaToUsBorderData = await xmlHandler.canadaToUsBorderData(); // Await the promise
+        // let usToCanadaBorderData = await xmlHandler.usToCanadaBorderData(); // Await the promise
         const { datePart, timePart } = getCurrentDateAndTimeParts();
-        let messageHtml = `${datePart} at ${timePart}` + borderData.split('\n').join('<br>');
-        let messageConsole = `${datePart} at ${timePart}` + borderData;
+        let messageHtml = `${datePart} at ${timePart}` + canadaToUsBorderData.split('\n').join('<br>');
+        // let messageHtml = `<span class="date-time">${datePart} at ${timePart}</span>`;
+        // canadaToUsBorderData.split('\n').forEach((line, index) => {
+        //     messageHtml += `<span class="border-data${index + 1}">${line}</span>`;
+        // });
+
+        // Canada-to-US
+        const messageHtmlCanadaToUsTableHeader = `<table>
+        <thead>
+            <tr>
+                <th class="canadaToUsTimes">Southbound (<span class="canada">Canada</span> to <span class="usa">US</span>) on ${datePart} at ${timePart}</th>
+            </tr>
+        </thead>`
+
+        let messageHtmlCanadaToUsTableBody = "";
+        canadaToUsBorderData.split('\n').forEach((line, index) => {
+            messageHtmlCanadaToUsTableBody += `<tr><td>${line}</td></tr>`;
+        });
+
+        const messageHtmlCanadaToUsTableTotal = messageHtmlCanadaToUsTableHeader + messageHtmlCanadaToUsTableBody + `</tbody></table>`;
+
+
+        // US-to-Canada
+        const messageHtmlUsToCanadaTableHeader = `<table>
+        <thead>
+            <tr>
+                <th class="usToCanadaTimes">Northbound (<span class="usa">US</span> to <span class="canada">Canada</span>) on ${datePart} at ${timePart}</th>
+            </tr>
+        </thead>`
+
+        let messageHtmlUsToCanadaTableBody = "";
+        canadaToUsBorderData.split('\n').forEach((line, index) => {
+            messageHtmlUsToCanadaTableBody += `<tr><td>${line}</td></tr>`;
+        });
+
+        const messageHtmlUsToCanadaTableTotal = messageHtmlUsToCanadaTableHeader + messageHtmlUsToCanadaTableBody + `</tbody></table>`;
+
+
+        let messageConsole = `${datePart} at ${timePart}` + canadaToUsBorderData;
         const data = {
             messageHtml,
+            messageHtmlCanadaToUsTableTotal,
+            messageHtmlUsToCanadaTableTotal,
             messageConsole,
         };
         res.json(data);
@@ -61,12 +99,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Index route
 app.get('/', (req, res) => {
     res.render('index');
-    console.log(`\x1b[41mInside app.get '/'. You should see this message when the page (re)loads\x1b[0m`);
+    console.log(`\x1b[41mInside app.get '/'. You should see this message when the page (re)loads\x1b[0m`); // RED background with BLACK font
 })
 
 // Catch form submit
 const styleGood = 'background-color: green; color: white; font-style: italic; border: 5px solid black; font-size: 2em;'
-console.log(`\x1b[41mInside app.post\x1b[0m`);
+console.log(`\x1b[41mInside app.post\x1b[0m`); // RED background with BLACK font
 
 app.post('/', (req, res) => {
 
@@ -98,11 +136,12 @@ app.post('/webhook', async (req, res) => {
     // Ping your website and extract the status message
     // const statusMessage = await pingWebsiteAndExtractMessage();
     try {
-        let borderData = await xmlHandler.borderData(); // Await the promise
-        // let borderData = await xmlHandler.borderData(); // Await the promise
+        let canadaToUsBorderData = await xmlHandler.canadaToUsBorderData(); // Await the promise
+        // let canadaToUsBorderData = await xmlHandler.canadaToUsBorderData(); // Await the promise
         const { datePart, timePart } = getCurrentDateAndTimeParts();
-        messageHtml = `${datePart} at ${timePart}` + borderData.split('\n').join('<br>');
-        messageConsole = `\n${datePart} at ${timePart}` + borderData;
+        messageHtml = `${datePart} at ${timePart}` + canadaToUsBorderData.split('\n').join('<br>');
+        messageConsole = `\n${datePart} at ${timePart}` + canadaToUsBorderData;
+
         // const data = {
         //     messageHtml,
         //     messageConsole,
@@ -129,8 +168,8 @@ app.post('/webhook', async (req, res) => {
 const port = 3000;
 const server = app.listen(port, () => {
     const { datePart, timePart } = getCurrentDateAndTimeParts();
-    console.log(`Listening at port ${port} on \x1b[41m${datePart}\x1b[0m at \x1b[41m${timePart}\x1b[0m.`); // Log to terminal
+    console.log(`Listening at port ${port} on \x1b[41m${datePart}\x1b[0m at \x1b[41m${timePart}\x1b[0m.`); // Log to terminal // RED background with BLACK font
 });
 
 
-console.log(`Last line of \x1b[41m${__filename}\x1b[0m`); // Log to terminal
+console.log(`Last line of \x1b[41m${__filename}\x1b[0m`); // Log to terminal // RED background with BLACK font

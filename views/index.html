@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css"
         integrity="sha512-5fsy+3xG8N/1PV5MIJz9ZsWpkltijBI48gBzQ/Z2eVATePGHOkMIn+xTDHIfTZFVb9GMpflF2wOWItqxAP2oLQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
 
     <script src="js/common.js"></script>
 
@@ -14,13 +16,22 @@
 </head>
 
 <body>
+    <h1><span class="usa">US</span>/<span class="canada">Canada</span> Border Wait Times</h1>
     <div class="container">
-        <h2>Send SMS Message</h2>
-        <input type="tel" name="number" id="number" placeholder="Enter Phone Number" value="123-456-8790">
+        <!-- <input type="tel" name="number" id="number" placeholder="Enter Phone Number" value="123-456-8790"> -->
         <!-- placeholder="Enter Phone Number">-->
-        <input type="text" name="msg" id="msg" placeholder="Enter Text Message" value="junk">
-        <input type="button" id="button" value="Send Text" class="button button-primary">
-        <p class="response">getCurrentDateAndTimeParts</p>
+        <!-- <input type="text" name="msg" id="msg" placeholder="Enter Text Message" value="junk"> -->
+        <!-- <input type="button" id="button" value="Send Text" class="button button-primary"> -->
+
+        <h3>Times crossing FROM <span class="canada">Canada</span> INTO the <span class="usa">US</span></h3>
+        <p class="canadaToUsTimes">Please wait for times to appear...</p>
+
+    </div>
+
+    <div class="container">
+        <h3>Times crossing FROM the <span class="usa">US</span> INTO <span class="canada">Canada</span></h3>
+        <p class="usToCanadaTimes">Please wait for times to appear...</p>
+
     </div>
 
     <script src="js/main.js"></script>
