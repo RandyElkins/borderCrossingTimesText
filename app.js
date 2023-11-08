@@ -4,6 +4,13 @@ console.log(`1st line of \x1b[41m${__filename}\x1b[0m`); // RED background with 
 // 2. Site retrieves border wait times
 // 3. Site responds with border wait times every 10min until user texts stop
 
+// Useful sites
+// https://bwt.cbp.gov/ // Border wait times: Canada/Mexico to USA
+// https://www.ezbordercrossing.com/list-of-border-crossings/ // Lists ALL xings between USA & Canada
+// https://cbsa-asfc.gc.ca/bwt-taf/menu-eng.html#s1 // Border wait times: USA to Canada
+// https://canadabordertimes.com/
+// https://borderlineups.com/wait-times/
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const ejs = require('ejs');
@@ -11,14 +18,19 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Imports from other files
-const getCurrentDateAndTimeParts = require('./public/js/common');
+const { getCurrentDateAndTimeParts, getBorderXingJsonData, convertToMinutes } = require('./public/js/common');
 // const mainAsWell = require('./public/js/main');
 const smsHandler = require('./public/js/modules/smsHandler'); // A module for sending SMS
 console.log(`Still in \x1b[41m${__filename}\x1b[0m`); // RED background with BLACK font
 const xmlHandler = require('./public/js/modules/xmlHandler'); // A module for handling XML data
+const toFromBorder = require('./public/js/modules/toFromBorder'); // A module for handling XML data
 
 const { datePart, timePart } = getCurrentDateAndTimeParts();
 console.log(`\x1b[41m${datePart}\x1b[0m at \x1b[41m${timePart}\x1b[0m.`); // RED background with BLACK font
+const data = getBorderXingJsonData();
+// console.log(`\x1b[44mdata2 =`);
+// console.log(data);
+// console.log(`\x1b[0m`);
 
 // ********************************************************************************************************
 
@@ -28,15 +40,34 @@ console.log(`Still in \x1b[41m${__filename}\x1b[0m`); // RED background with BLA
 
 // From ChatGPT
 app.get('/api/data', async (req, res) => { // Use async to await the promise
+    // console.log(`\x1b[44mInside ${__filename} /api/data, data\x1b[41m1\x1b[44m =`);
+    // console.log(data);
+    // console.log(`\x1b[0m`);
+
+    // Get current Border-To-Destination-Data (Time & Distance)
+    try {
+        let borderToDestinationData = await toFromBorder.data;
+        // console.log(`\x1b[41mInside ${__filename} /api/data, borderToDestinationData =`);
+        // console.log(borderToDestinationData);
+        // console.log(`\x1b[0m`);
+    } catch (error) {
+        console.error('Error in toFromBorder.js', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+
+    // Get current Border Times
     try {
         let canadaToUsBorderData = await xmlHandler.canadaToUsBorderData(); // Await the promise
+        console.log(`\x1b[44mInside ${__filename} /api/data, canadaToUsBorderData =`);
+        console.log(`${canadaToUsBorderData}`);
+        console.log(`\x1b[0m`);
         // let usToCanadaBorderData = await xmlHandler.usToCanadaBorderData(); // Await the promise
         const { datePart, timePart } = getCurrentDateAndTimeParts();
         let messageHtml = `${datePart} at ${timePart}` + canadaToUsBorderData.split('\n').join('<br>');
         // let messageHtml = `<span class="date-time">${datePart} at ${timePart}</span>`;
-        // canadaToUsBorderData.split('\n').forEach((line, index) => {
-        //     messageHtml += `<span class="border-data${index + 1}">${line}</span>`;
-        // });
+        canadaToUsBorderData.split('\n').forEach((line, index) => {
+            messageHtml += `<span class="border-data${index + 1}">${line}</span>`;
+        });
 
         // Canada-to-US
         const messageHtmlCanadaToUsTableHeader = `<table>
