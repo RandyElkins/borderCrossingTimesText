@@ -23,11 +23,11 @@ const { getCurrentDateAndTimeParts, getBorderXingJsonData, convertToMinutes } = 
 const smsHandler = require('./public/js/modules/smsHandler'); // A module for sending SMS
 console.log(`Still in \x1b[41m${__filename}\x1b[0m`); // RED background with BLACK font
 const xmlHandler = require('./public/js/modules/xmlHandler'); // A module for handling XML data
-const toFromBorder = require('./public/js/modules/toFromBorder'); // A module for handling XML data
+const { getToFromBorderInfo } = require('./public/js/modules/toFromBorder'); // A module for handling XML data
 
 const { datePart, timePart } = getCurrentDateAndTimeParts();
 console.log(`\x1b[41m${datePart}\x1b[0m at \x1b[41m${timePart}\x1b[0m.`); // RED background with BLACK font
-const data = getBorderXingJsonData();
+let data = getBorderXingJsonData();
 // console.log(`\x1b[44mdata2 =`);
 // console.log(data);
 // console.log(`\x1b[0m`);
@@ -46,9 +46,9 @@ app.get('/api/data', async (req, res) => { // Use async to await the promise
 
     // Get current Border-To-Destination-Data (Time & Distance)
     try {
-        let borderToDestinationData = await toFromBorder.data;
-        // console.log(`\x1b[41mInside ${__filename} /api/data, borderToDestinationData =`);
-        // console.log(borderToDestinationData);
+        data = await getToFromBorderInfo(data);
+        // console.log(`\x1b[41mInside ${__filename} /api/data, data =`);
+        // console.log(data);
         // console.log(`\x1b[0m`);
     } catch (error) {
         console.error('Error in toFromBorder.js', error);
@@ -135,9 +135,9 @@ app.get('/', (req, res) => {
 
 // Catch form submit
 const styleGood = 'background-color: green; color: white; font-style: italic; border: 5px solid black; font-size: 2em;'
-console.log(`\x1b[41mInside app.post\x1b[0m`); // RED background with BLACK font
 
 app.post('/', (req, res) => {
+    console.log(`\x1b[43mInside app.post\x1b[0m`); // RED background with BLACK font
 
     res.send(req.body);
     console.log(`Just hit "SEND TEXT" button`); // Log to terminal
