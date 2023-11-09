@@ -44,12 +44,12 @@ app.get('/api/data', async (req, res) => { // Use async to await the promise
     // console.log(data);
     // console.log(`\x1b[0m`);
 
-    // Get current Border-To-Destination-Data (Time & Distance)
+    // Get current Origination-to-Border-to-Destination-Data (Time & Distance)
     try {
         data = await getToFromBorderInfo(data);
-        // console.log(`\x1b[41mInside ${__filename} /api/data, data =`);
-        // console.log(data);
-        // console.log(`\x1b[0m`);
+        console.log(`\x1b[41mInside ${__filename} /api/data, data =`);
+        console.log(data);
+        console.log(`\x1b[0m`);
     } catch (error) {
         console.error('Error in toFromBorder.js', error);
         res.status(500).json({ error: 'An error occurred' });

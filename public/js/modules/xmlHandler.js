@@ -128,7 +128,7 @@ function parseCanadaToUsXMLAndExtractInfo(xmlData) {
 }
 
 function extractAndFormat(inputString) {
-    const regex = /(\d+) General Lanes: At (\d{1,2}):(\d{2}) ([ap]m) PDT (\d+) min delay (\d+) lane\(s\) open/;
+    const regex = /(\d+) General Lanes: At (\d{1,2}):(\d{2}) ([ap]m) P(?:D|S)T (\d+) min delay (\d+) lane\(s\) open/;
     const match = inputString.match(regex);
 
     if (match && match[1] && match[2] && match[3] && match[4] && match[5] && match[6]) {

@@ -30,17 +30,26 @@ const onePlaceToAnother = async (origOrDest, entry) => {
         fromHere = origination;
         toHere = entry.plusCode;
         const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${fromHere}&destination=${toHere}&key=${apiKey}`;
+        console.log(`\x1b[43murl = ${url}\x1b[0m`);
+
         const response = await axios.get(url);
         entry.timeToBorder = convertToMinutes(response.data.routes[0].legs[0].duration.text);
-        entry.distanceToBorder = parseFloat(response.data.routes[0].legs[0].distance.text.split(' ')[0]);
+        const units = response.data.routes[0].legs[0].distance.text.split(' ')[1];
+        const conversionValue = units === "km" ? 0.621371 : 1;
+        entry.distanceToBorder = Math.round(parseFloat(response.data.routes[0].legs[0].distance.text.split(' ')[0]) * conversionValue * 10) / 10;
     } else {
         console.log(`Inside destination`);
         fromHere = entry.plusCode;
         toHere = destination;
         const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${fromHere}&destination=${toHere}&key=${apiKey}`;
+        console.log(`\x1b[43murl = ${url}\x1b[0m`);
+
         const response = await axios.get(url);
         entry.timeToDestination = convertToMinutes(response.data.routes[0].legs[0].duration.text);
-        entry.distanceToDestination = parseFloat(response.data.routes[0].legs[0].distance.text.split(' ')[0]);
+        const units = response.data.routes[0].legs[0].distance.text.split(' ')[1];
+        const conversionValue = units === "km" ? 0.621371 : 1;
+
+        entry.distanceToDestination = Math.round(parseFloat(response.data.routes[0].legs[0].distance.text.split(' ')[0]) * conversionValue * 10) / 10;
     }
 
     // console.log(`Inside onePlaceToAnother \x1b[43mentry =`);
