@@ -74,12 +74,33 @@ function logFunctionName() {
     }
 }
 
-module.exports = {
-    getCurrentDateAndTimeParts,
-    getBorderXingJsonData,
-    convertToMinutes,
-    logFunctionName,
-};
+// module.exports = {
+//     getCurrentDateAndTimeParts,
+//     getBorderXingJsonData,
+//     convertToMinutes,
+//     logFunctionName,
+// };
+
+// Exporting the functions for use in Node.js environments
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = {
+        getCurrentDateAndTimeParts,
+        getBorderXingJsonData,
+        convertToMinutes,
+        logFunctionName,
+    };
+}
+
+// Exporting the functions for use in browser environments
+if (typeof window !== 'undefined') {
+    window.myFunctions = {
+        getCurrentDateAndTimeParts,
+        getBorderXingJsonData,
+        convertToMinutes,
+        logFunctionName,
+    };
+}
+
 
 // getBorderXingJsonData();
 // console.log(`Last line of \x1b[45m${__filename}\x1b[0m`);

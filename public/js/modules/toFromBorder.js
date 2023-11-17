@@ -17,39 +17,44 @@ const destination = '3809+Alabama+St+98226'; // Only street & zip needed
 const directionNS = (/Canada/i).test(destination) ? "northbound" : "southbound";
 
 // Filter the entries that are ONLY `directionNS`.
-const borderXingsToUse = data => data.filter(entry => entry.direction === directionNS);
+// const borderXingsToUse = data => data.filter(entry => entry.direction === directionNS);
+// console.log(`\x1b[43mborderXingsToUse =`);
+// console.log(borderXingsToUse);
+// console.log(`\x1b[0m`);
 
 // Functions
 // ***** BEGIN: Get travel info from Origianation-to-Border *****
-const onePlaceToAnother = async (origOrDest, entry) => {
+const onePlaceToAnother = async (origOrDest, info, entry) => {
 
     let fromHere = "";
     let toHere = "";
 
-    if (origOrDest === 'origination') {
-        fromHere = origination;
-        toHere = entry.plusCode;
-        const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${fromHere}&destination=${toHere}&key=${apiKey}`;
-        console.log(`\x1b[43murl = ${url}\x1b[0m`);
+    if (entry.direction === info.directionNS) {
+        if (origOrDest === 'origination') {
+            fromHere = origination;
+            toHere = entry.plusCode;
+            const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${fromHere}&destination=${toHere}&key=${apiKey}`;
+            console.log(`\x1b[43murl = ${url}\x1b[0m`);
 
-        const response = await axios.get(url);
-        entry.timeToBorder = convertToMinutes(response.data.routes[0].legs[0].duration.text);
-        const units = response.data.routes[0].legs[0].distance.text.split(' ')[1];
-        const conversionValue = units === "km" ? 0.621371 : 1;
-        entry.distanceToBorder = Math.round(parseFloat(response.data.routes[0].legs[0].distance.text.split(' ')[0]) * conversionValue * 10) / 10;
-    } else {
-        console.log(`Inside destination`);
-        fromHere = entry.plusCode;
-        toHere = destination;
-        const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${fromHere}&destination=${toHere}&key=${apiKey}`;
-        console.log(`\x1b[43murl = ${url}\x1b[0m`);
+            const response = await axios.get(url);
+            entry.timeToBorder = convertToMinutes(response.data.routes[0].legs[0].duration.text);
+            const units = response.data.routes[0].legs[0].distance.text.split(' ')[1];
+            const conversionValue = units === "km" ? 0.621371 : 1;
+            entry.distanceToBorder = Math.round(parseFloat(response.data.routes[0].legs[0].distance.text.split(' ')[0]) * conversionValue * 10) / 10;
+        } else {
+            // console.log(`Inside destination`);
+            fromHere = entry.plusCode;
+            toHere = destination;
+            const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${fromHere}&destination=${toHere}&key=${apiKey}`;
+            // console.log(`\x1b[43murl = ${url}\x1b[0m`);
 
-        const response = await axios.get(url);
-        entry.timeToDestination = convertToMinutes(response.data.routes[0].legs[0].duration.text);
-        const units = response.data.routes[0].legs[0].distance.text.split(' ')[1];
-        const conversionValue = units === "km" ? 0.621371 : 1;
+            const response = await axios.get(url);
+            entry.timeToDestination = convertToMinutes(response.data.routes[0].legs[0].duration.text);
+            const units = response.data.routes[0].legs[0].distance.text.split(' ')[1];
+            const conversionValue = units === "km" ? 0.621371 : 1;
 
-        entry.distanceToDestination = Math.round(parseFloat(response.data.routes[0].legs[0].distance.text.split(' ')[0]) * conversionValue * 10) / 10;
+            entry.distanceToDestination = Math.round(parseFloat(response.data.routes[0].legs[0].distance.text.split(' ')[0]) * conversionValue * 10) / 10;
+        }
     }
 
     // console.log(`Inside onePlaceToAnother \x1b[43mentry =`);
@@ -62,13 +67,21 @@ const onePlaceToAnother = async (origOrDest, entry) => {
 
 
 
-async function getToFromBorderInfo(data) {
+async function getToFromBorderInfo(data, info) {
+    // console.log(`\x1b[41mInside ${__filename}, info =`);
+    // console.log(info);
+    // console.log(`\x1b[0m`);
 
     // Get Origination-to-Border Info
-    data = await Promise.all(borderXingsToUse(data).map(entry => onePlaceToAnother('origination', entry)));
+    data = await Promise.all(data.map(entry => onePlaceToAnother('origination', info, entry)));
+    // data = await Promise.all(borderXingsToUse(data).map(entry => onePlaceToAnother('origination', directionNS, entry)));
 
     // Get Border-to-Destination Info
-    data = await Promise.all(borderXingsToUse(data).map(entry => onePlaceToAnother('destination', entry)));
+    data = await Promise.all(data.map(entry => onePlaceToAnother('destination', info, entry)));
+    // data = await Promise.all(borderXingsToUse(data).map(entry => onePlaceToAnother('destination', info, entry)));
+    // console.log(`\x1b[41mInside ${__filename}, data =`);
+    // console.log(data);
+    // console.log(`\x1b[0m`);
 
     return data;
 };

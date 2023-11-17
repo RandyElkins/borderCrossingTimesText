@@ -31,7 +31,16 @@ let data = getBorderXingJsonData();
 // console.log(`\x1b[44mdata2 =`);
 // console.log(data);
 // console.log(`\x1b[0m`);
+const origination = 'Tatlow Walk, Vancouver, BC V6G 3E2, Canada';
+const destination = '3809+Alabama+St+98226'; // Only street & zip needed
+// const destination = '3809+Alabama+St,+Bellingham,+WA+98226-4585';
+const directionNS = (/Canada/i).test(destination) ? "northbound" : "southbound";
 
+const info = {
+    origination,
+    destination,
+    directionNS
+}
 // ********************************************************************************************************
 
 // Init app
@@ -46,28 +55,22 @@ app.get('/api/data', async (req, res) => { // Use async to await the promise
 
     // Get current Origination-to-Border-to-Destination-Data (Time & Distance)
     try {
-        data = await getToFromBorderInfo(data);
-        console.log(`\x1b[41mInside ${__filename} /api/data, data =`);
-        console.log(data);
-        console.log(`\x1b[0m`);
-    } catch (error) {
-        console.error('Error in toFromBorder.js', error);
-        res.status(500).json({ error: 'An error occurred' });
-    }
+        // console.log(`\x1b[41mInside ${__filename} /api/data, data =`);
+        // console.log(data);
+        // console.log(`\x1b[0m`);
+        data = await getToFromBorderInfo(data, info);
+        data = await xmlHandler.canadaToUsBorderData(data, info);
+        // console.log(`\x1b[42mInside ${__filename} /api/data, data =`);
+        // console.log(data);
+        // console.log(`\x1b[0m`);
 
-    // Get current Border Times
-    try {
-        let canadaToUsBorderData = await xmlHandler.canadaToUsBorderData(); // Await the promise
-        console.log(`\x1b[44mInside ${__filename} /api/data, canadaToUsBorderData =`);
-        console.log(`${canadaToUsBorderData}`);
-        console.log(`\x1b[0m`);
-        // let usToCanadaBorderData = await xmlHandler.usToCanadaBorderData(); // Await the promise
         const { datePart, timePart } = getCurrentDateAndTimeParts();
-        let messageHtml = `${datePart} at ${timePart}` + canadaToUsBorderData.split('\n').join('<br>');
+        let messageHtml = `${datePart} at ${timePart}`;
+        // let messageHtml = `${datePart} at ${timePart}` + canadaToUsBorderData.split('\n').join('<br>');
         // let messageHtml = `<span class="date-time">${datePart} at ${timePart}</span>`;
-        canadaToUsBorderData.split('\n').forEach((line, index) => {
-            messageHtml += `<span class="border-data${index + 1}">${line}</span>`;
-        });
+        // canadaToUsBorderData.split('\n').forEach((line, index) => {
+        //     messageHtml += `<span class="border-data${index + 1}">${line}</span>`;
+        // });
 
         // Canada-to-US
         const messageHtmlCanadaToUsTableHeader = `<table>
@@ -78,9 +81,9 @@ app.get('/api/data', async (req, res) => { // Use async to await the promise
         </thead>`
 
         let messageHtmlCanadaToUsTableBody = "";
-        canadaToUsBorderData.split('\n').forEach((line, index) => {
-            messageHtmlCanadaToUsTableBody += `<tr><td>${line}</td></tr>`;
-        });
+        // canadaToUsBorderData.split('\n').forEach((line, index) => {
+        //     messageHtmlCanadaToUsTableBody += `<tr><td>${line}</td></tr>`;
+        // });
 
         const messageHtmlCanadaToUsTableTotal = messageHtmlCanadaToUsTableHeader + messageHtmlCanadaToUsTableBody + `</tbody></table>`;
 
@@ -94,26 +97,95 @@ app.get('/api/data', async (req, res) => { // Use async to await the promise
         </thead>`
 
         let messageHtmlUsToCanadaTableBody = "";
-        canadaToUsBorderData.split('\n').forEach((line, index) => {
-            messageHtmlUsToCanadaTableBody += `<tr><td>${line}</td></tr>`;
-        });
+        // canadaToUsBorderData.split('\n').forEach((line, index) => {
+        //     messageHtmlUsToCanadaTableBody += `<tr><td>${line}</td></tr>`;
+        // });
 
         const messageHtmlUsToCanadaTableTotal = messageHtmlUsToCanadaTableHeader + messageHtmlUsToCanadaTableBody + `</tbody></table>`;
 
 
-        let messageConsole = `${datePart} at ${timePart}` + canadaToUsBorderData;
-        const data = {
-            messageHtml,
-            messageHtmlCanadaToUsTableTotal,
-            messageHtmlUsToCanadaTableTotal,
-            messageConsole,
-        };
+        // let messageConsole = `${datePart} at ${timePart}` + canadaToUsBorderData;
+        // const data = {
+        //     messageHtml,
+        //     messageHtmlCanadaToUsTableTotal,
+        //     messageHtmlUsToCanadaTableTotal,
+        //     messageConsole,
+        // };
         res.json(data);
+
+        // return data;
     } catch (error) {
-        // Handle any errors that occur during the asynchronous operation
-        console.error('Error in /api/data:', error);
+        console.error('Error in toFromBorder.js', error);
         res.status(500).json({ error: 'An error occurred' });
     }
+
+    console.log(`Final times here!!`);
+    // console.log(`\x1b[41mInside ${__filename} /api/data, data =`);
+    // console.log(data);
+    // console.log(`\x1b[0m`);
+
+    // Get current Border Times
+    // try {
+    //     console.log(`\x1b[44mInside ${__filename} /api/data, Do we have data =`);
+    //     console.log(data);
+    //     console.log(`\x1b[0m`);
+    //     let canadaToUsBorderData = await xmlHandler.canadaToUsBorderData(data); // Await the promise
+    //     console.log(`\x1b[44mInside ${__filename} /api/data, canadaToUsBorderData =`);
+    //     console.log(`${canadaToUsBorderData}`);
+    //     console.log(`\x1b[0m`);
+    //     // let usToCanadaBorderData = await xmlHandler.usToCanadaBorderData(); // Await the promise
+    //     const { datePart, timePart } = getCurrentDateAndTimeParts();
+    //     let messageHtml = `${datePart} at ${timePart}` + canadaToUsBorderData.split('\n').join('<br>');
+    //     // let messageHtml = `<span class="date-time">${datePart} at ${timePart}</span>`;
+    //     canadaToUsBorderData.split('\n').forEach((line, index) => {
+    //         messageHtml += `<span class="border-data${index + 1}">${line}</span>`;
+    //     });
+
+    //     // Canada-to-US
+    //     const messageHtmlCanadaToUsTableHeader = `<table>
+    //     <thead>
+    //         <tr>
+    //             <th class="canadaToUsTimes">Southbound (<span class="canada">Canada</span> to <span class="usa">US</span>) on ${datePart} at ${timePart}</th>
+    //         </tr>
+    //     </thead>`
+
+    //     let messageHtmlCanadaToUsTableBody = "";
+    //     canadaToUsBorderData.split('\n').forEach((line, index) => {
+    //         messageHtmlCanadaToUsTableBody += `<tr><td>${line}</td></tr>`;
+    //     });
+
+    //     const messageHtmlCanadaToUsTableTotal = messageHtmlCanadaToUsTableHeader + messageHtmlCanadaToUsTableBody + `</tbody></table>`;
+
+
+    //     // US-to-Canada
+    //     const messageHtmlUsToCanadaTableHeader = `<table>
+    //     <thead>
+    //         <tr>
+    //             <th class="usToCanadaTimes">Northbound (<span class="usa">US</span> to <span class="canada">Canada</span>) on ${datePart} at ${timePart}</th>
+    //         </tr>
+    //     </thead>`
+
+    //     let messageHtmlUsToCanadaTableBody = "";
+    //     canadaToUsBorderData.split('\n').forEach((line, index) => {
+    //         messageHtmlUsToCanadaTableBody += `<tr><td>${line}</td></tr>`;
+    //     });
+
+    //     const messageHtmlUsToCanadaTableTotal = messageHtmlUsToCanadaTableHeader + messageHtmlUsToCanadaTableBody + `</tbody></table>`;
+
+
+    //     let messageConsole = `${datePart} at ${timePart}` + canadaToUsBorderData;
+    //     const data = {
+    //         messageHtml,
+    //         messageHtmlCanadaToUsTableTotal,
+    //         messageHtmlUsToCanadaTableTotal,
+    //         messageConsole,
+    //     };
+    //     res.json(data);
+    // } catch (error) {
+    //     // Handle any errors that occur during the asynchronous operation
+    //     console.error('Error in /api/data:', error);
+    //     res.status(500).json({ error: 'An error occurred' });
+    // }
 });
 
 // Template engine setup

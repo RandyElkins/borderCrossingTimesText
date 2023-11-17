@@ -8,16 +8,16 @@ const usToCanadaTimesXmlUrlBlaine = 'https://canadabordertimes.com/blaine/';
 const usToCanadaTimesXmlUrlLynden = 'https://canadabordertimes.com/lynden/';
 const usToCanadaTimesXmlUrlSumas = 'https://canadabordertimes.com/sumas/';
 
-async function canadaToUsBorderData() {
+async function canadaToUsBorderData(data, info) {
     const xmlData = await fetchCanadaToUsXMLData();
     // console.log('parseCanadaToUsXMLAndExtractInfo(xmlData)'); // Log to terminal
-    return parseCanadaToUsXMLAndExtractInfo(xmlData);
+    return parseCanadaToUsXMLAndExtractInfo(xmlData, data, info);
 }
 
-async function usToCanadaBorderData() {
+async function usToCanadaBorderData(data) {
     const xmlData = await fetchUsToCanadaXMLData();
     // console.log('parseCanadaToUsXMLAndExtractInfo(xmlData)'); // Log to terminal
-    return parseUsToCanadaXMLAndExtractInfo(xmlData);
+    return parseUsToCanadaXMLAndExtractInfo(xmlData, data);
 }
 
 async function fetchCanadaToUsXMLData() {
@@ -31,7 +31,7 @@ async function fetchCanadaToUsXMLData() {
     }
 }
 
-async function fetchUsToCanadaXMLData() {
+async function fetchUsToCanadaXMLData(data) {
     try {
         const usToCanadaTimesBlaine = await axios.get(usToCanadaTimesXmlUrlBlaine);
         const usToCanadaTimesLynden = await axios.get(usToCanadaTimesXmlUrlLynden);
@@ -39,12 +39,12 @@ async function fetchUsToCanadaXMLData() {
         const xmlDataBlaineData = usToCanadaTimesBlaine.data;
         const xmlDataLyndenData = usToCanadaTimesLynden.data;
         const xmlDataSumasData = usToCanadaTimesSumas.data;
-        console.log(`\x1b[41mxmlDataBlaineData\x1b[0m =`); // RED background with BLACK font
-        console.log(xmlDataBlaineData);
-        console.log(`\x1b[41mxmlDataLyndenData\x1b[0m =`); // RED background with BLACK font
-        console.log(xmlDataLyndenData);
-        console.log(`\x1b[41mxmlDataSumasData\x1b[0m =`); // RED background with BLACK font
-        console.log(xmlDataSumasData);
+        // console.log(`\x1b[41mxmlDataBlaineData\x1b[0m =`); // RED background with BLACK font
+        // console.log(xmlDataBlaineData);
+        // console.log(`\x1b[41mxmlDataLyndenData\x1b[0m =`); // RED background with BLACK font
+        // console.log(xmlDataLyndenData);
+        // console.log(`\x1b[41mxmlDataSumasData\x1b[0m =`); // RED background with BLACK font
+        // console.log(xmlDataSumasData);
         return xmlDataBlaineData;
     } catch (error) {
         console.error('Error fetching XML data:', error);
@@ -52,7 +52,7 @@ async function fetchUsToCanadaXMLData() {
     }
 }
 
-function parseCanadaToUsXMLAndExtractInfo(xmlData) {
+function parseCanadaToUsXMLAndExtractInfo(xmlData, data, info) {
 
     let outgoingMsgText = '';
 
@@ -75,19 +75,28 @@ function parseCanadaToUsXMLAndExtractInfo(xmlData) {
 
             if (title === "Blaine - Pacific Highway" || title === "Blaine - Peace Arch" /*|| title === "Blaine - Point Roberts" */ || title === "Lynden" || title === "Sumas") {
 
+                // console.log(`\x1b[46mInside ${__filename} - parseCanadaToUsXMLAndExtractInfo, data =`);
+                // console.log(data);
+                // console.log(`\x1b[0m`);
+                // console.log(`\x1b[47mInside ${__filename} - parseCanadaToUsXMLAndExtractInfo, info =`);
+                // console.log(info);
+                // console.log(`\x1b[0m`);
+
                 if (title === "Blaine - Pacific Highway") {
                     title = "Truck Xing-";
-                    // title = "Truck Xing";
+                    nickname = "Truck Xing";
                 } else if (title === "Blaine - Peace Arch") {
                     title = "Peace Arch";
+                    nickname = "Peace Arch";
                 } else if (title === "Blaine - Point Roberts") {
                     title = "Pt Roberts";
                 } else if (title === "Lynden") {
                     title = "Meridian----";
+                    nickname = "Meridian";
                     // title = "Meridian--";
                 } else if (title === "Sumas") {
                     title = "Sumas-------";
-                    // title = "Sumas-----";
+                    nickname = "Sumas";
                 } else {
                     title = "IDK";
                 }
@@ -103,11 +112,14 @@ function parseCanadaToUsXMLAndExtractInfo(xmlData) {
                         const extractedText = match[2].trim();
 
                         // **************************************
-                        extractAndFormat(extractedText);
+                        extractAndFormat(extractedText, data, info);
+                        // console.log(`\x1b[41mInside ${__filename}, data =`);
+                        // console.log(data);
+                        // console.log(`\x1b[0m`);
                         // **************************************
 
-                        console.log(`\x1b[42m${title}: ${extractAndFormat(extractedText)}\x1b[0m`); // Log to terminal
-                        outgoingMsgText += `\n${title}: ${extractAndFormat(extractedText)}`;
+                        // console.log(`\x1b[42m${title}: ${extractAndFormat(extractedText)}\x1b[0m`); // Log to terminal
+                        // outgoingMsgText += `\n${title}: ${extractAndFormat(extractedText)}`;
                         // outgoingMsgText += `${title}: ${extractAndFormat(extractedText)}\n`;
 
                     } else {
@@ -124,14 +136,27 @@ function parseCanadaToUsXMLAndExtractInfo(xmlData) {
         });
     });
 
-    return outgoingMsgText;
+    // console.log(`\x1b[41mInside ${__filename}, data =`);
+    // console.log(data);
+    // console.log(`\x1b[0m`);
+
+    return data;
 }
 
-function extractAndFormat(inputString) {
+function extractAndFormat(inputString, data, info) {
     const regex = /(\d+) General Lanes: At (\d{1,2}):(\d{2}) ([ap]m) P(?:D|S)T (\d+) min delay (\d+) lane\(s\) open/;
     const match = inputString.match(regex);
 
     if (match && match[1] && match[2] && match[3] && match[4] && match[5] && match[6]) {
+        // console.log(`\x1b[47mInside ${__filename} - parseCanadaToUsXMLAndExtractInfo, info =`);
+        // console.log(info);
+        // console.log(`\x1b[0m`);
+
+        const thisXing = data.findIndex(xing => xing.nickname === nickname && xing.direction === info.directionNS);
+        // console.log(`\x1b[31;47mInside ${__filename} - parseCanadaToUsXMLAndExtractInfo, thisXing =`);
+        // console.log(thisXing);
+        // console.log(`\x1b[0m`);
+
         const totalLanes = match[1]; // Example: "10" = 10 total lanes
         const hour = match[2];       // Example:  "9" = 9 o'clock
         const minute = match[3];     // Example: "00" = 00 minutes past the hour above
@@ -151,7 +176,27 @@ function extractAndFormat(inputString) {
         const paddedLanesOpen = lanesOpen.padStart(2, '0');
         const paddedTotalLanes = totalLanes.padStart(2, '0');
 
-        return `${formattedTime}-${delay.padStart(2, '0')}min delay-${paddedLanesOpen}/${paddedTotalLanes} lanes open`;
+        // console.log(`\x1b[41mBEFORE data =`);
+        // console.log(data);
+        // console.log(`\x1b[0m`);
+
+        if (thisXing !== -1) {
+            data[thisXing].borderDelay = parseInt(delay);
+            data[thisXing].borderLanesOpen = lanesOpen;
+            data[thisXing].borderTimeLastUpdated = formattedTime;
+            data[thisXing].borderTotalLanes = totalLanes;
+
+            // Sum times & distances
+            data[thisXing].totalTime = data[thisXing].timeToBorder + data[thisXing].borderDelay + data[thisXing].timeToDestination
+            data[thisXing].totalDistance = data[thisXing].distanceToBorder + data[thisXing].borderDelay + data[thisXing].distanceToDestination
+        }
+
+        // console.log(`\x1b[43mAFTER data =`);
+        // console.log(data);
+        // console.log(`\x1b[0m`);
+
+        return data;
+        // return `${formattedTime}-${delay.padStart(2, '0')}min delay-${paddedLanesOpen}/${paddedTotalLanes} lanes open`;
     } else {
         return `---General Lanes: Lanes Closed----`;
     }
